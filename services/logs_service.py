@@ -2,14 +2,15 @@ from db import mongo
 from bson.json_util import dumps, loads
 
 def get_logs(userId, from_date, to_date, typesList):
-    print(userId, from_date, to_date, typesList)
 
     pipeline = []
     match = []
     filter = []
     
-    pipeline.append({ "$project": { "_id": 0 }})
-    if userId: match.append({ 'userId': userId })
+    pipeline.append({ "$project": { "_id": 0 }}) #ignore objectID's from the result. 
+
+    if userId: 
+        match.append({ 'userId': userId })
     if from_date: 
         filter.append({ '$gte' : ['$$action.time', from_date ]})
         match.append({ 'actions.time': { '$gte': from_date } })
@@ -19,7 +20,8 @@ def get_logs(userId, from_date, to_date, typesList):
     if typesList: 
         filter.append({ '$in' : ['$$action.type', typesList ]})
         match.append({ 'actions.type': {'$in': typesList} })
-    if match: pipeline.append( {"$match": { "$and": match } } )
+    if match: 
+        pipeline.append( {"$match": { "$and": match } } )
     if filter: 
         pipeline.append({ 
             "$project": 
@@ -40,6 +42,10 @@ def get_logs(userId, from_date, to_date, typesList):
     cursor = mongo.db.logs.aggregate(pipeline)
     return loads(dumps(cursor))
 
-def add_log(data):
-    inserted_data = mongo.db.logs.insert(data)
+def add_log(userId, sessionId, actions):
+    inserted_data = mongo.db.logs.update(
+        { 'userId': userId, 'sessionId': sessionId },
+        { '$push': { 'actions': { '$each': actions } }}, 
+        upsert=True
+        )
     return inserted_data
