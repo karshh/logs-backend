@@ -42,13 +42,6 @@ class _LogService:
                     "sessionId": 1
                 }
             })
-        pipeline.append({ '$redact': {
-        '$cond': {
-           'if': { '$ne': ['actions', '[]'] },
-           'then': "$$DESCEND",
-           'else': "$$PRUNE"
-         }
-       }})
         cursor = Log.objects.aggregate(pipeline)
         return loads(dumps(cursor))
 
