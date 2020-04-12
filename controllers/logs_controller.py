@@ -7,10 +7,12 @@ logs = Blueprint('logs', __name__)
 @logs.route('/')
 def GetLogs():
     userId = request.args.get('userId')
-    from_date = request.args.get('from_date')
-    to_date = request.args.get('to_date')
-    _type = request.args.get('type')
-    return jsonify(get_logs(userId, from_date, to_date, _type))
+    from_date = request.args.get('from')
+    to_date = request.args.get('to')
+    types = request.args.get('types')
+    typesList = []
+    if types is not None: typesList = types.split(',')
+    return jsonify(get_logs(userId, from_date, to_date, typesList))
 
 @logs.route('/', methods=['POST'])
 def AddLog():
