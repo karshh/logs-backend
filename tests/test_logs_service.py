@@ -126,6 +126,95 @@ class TestLogService(unittest.TestCase):
 
     ############################################
     #
+    # TESTING LogService._create_action_model
+    #
+    ############################################
+    def test_empty_input(self):
+        try:
+            LogService._createActionModel(None)
+            assert False
+        except ValueError as e:
+            assert str(e) == "EMPTY_ACTION"
+
+    def test_invalid_time_format(self):
+        try:
+            LogService._createActionModel({ "time": "2012-02-01", "type": "VIEW", "properties": { "viewedId": "12345" } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "INVALID_TIME_FORMAT"
+    def test_invalid_type_input(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "VIEWS", "properties": { "viewedId": "12345" } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "INVALID_ACTION_TYPE"
+
+    def test_view_with_missing_viewId(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "locationX": 12345 } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_VIEWEDID_VALUE"
+            
+    def test_navigate_with_missing_pageFrom(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageTo": "X" } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_PAGEFROM_VALUE"
+            
+    def test_navigate_with_missing_pageTo(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageFrom": "X" } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_PAGETO_VALUE"
+            
+    def test_click_with_missing_locationX(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "CLICK", "properties": { "locationY": 1234 } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_LOCATION_X_VALUE"
+            
+    def test_click_with_missing_locationY(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "CLICK", "properties": { "locationX": 1234 } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_LOCATION_Y_VALUE"
+            
+    def test_create_valid_click(self):
+        try:
+            answer = Action(_time="2018-10-20T21:37:28-06:00", _type="CLICK", _properties=ClickProperties(locationX=23, locationY=1234))
+            result = LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "CLICK", "properties": { "locationX": 23, "locationY": 1234 } })
+            
+            assert result is not None
+            assert answer == result
+        except ValueError as e:
+            assert False
+            
+    def test_create_valid_navigate(self):
+        try:
+            answer = Action(_time="2018-10-20T21:37:28-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom='X', pageTo='Y'))
+            result = LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageFrom": "X", "pageTo": "Y" } })
+            assert result is not None
+            assert answer == result
+        except ValueError as e:
+            assert False
+
+    def test_create_valid_view(self):
+        try:
+            answer = Action(_time="2018-10-20T21:37:28-06:00", _type="VIEW", _properties=ViewProperties(viewedId='12345'))
+            result = LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } })
+            assert result is not None
+            assert answer == result
+        except ValueError as e:
+            assert False
+            
+
+    ############################################
+    #
     # TESTING LogService.get_logs
     #
     ############################################

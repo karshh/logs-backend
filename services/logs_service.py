@@ -87,6 +87,7 @@ class _LogService:
 
 
     def _createActionModel(self, action):
+        if not action: raise ValueError("EMPTY_ACTION")
         _properties = action.get('properties')
         _type = action.get('type')
         _time = action.get('time')
