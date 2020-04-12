@@ -18,10 +18,11 @@ class _LogService:
         #ignore objectID's and generated _cls from the result. 
         pipeline = [{ "$project": { "_id": 0, "actions.properties._cls": 0 }}]
         match = self._construct_match_array(userId, from_date, to_date, typesList)
+        filter = self._construct_filter_array(from_date, to_date, typesList)
 
         if match: 
             pipeline.append( {"$match": { "$and": match } } )
-        if typesList: 
+        if filter:
             pipeline.append({ 
                 "$project": 
                 {
@@ -31,13 +32,16 @@ class _LogService:
                         {
                             "input": "$actions",
                             "as": "action",
-                            "cond":{ '$in' : ['$$action.type', typesList ]}
+                            "cond": { "$and" : filter }
                         },
                     },
                     "userId": 1,
                     "sessionId": 1
                 }
             })
+
+        # Remove documents that have an empty action array.
+        pipeline.append({ "$match": { "actions.0": { "$exists": True } }})
         cursor = Log.objects.aggregate(pipeline)
         return loads(dumps(cursor))
 
@@ -70,6 +74,17 @@ class _LogService:
         if typesList: 
             match.append({ 'actions.type': {'$in': typesList} })
         return match
+
+    def _construct_filter_array(self, from_date, to_date, typesList):
+        filter = []
+        if from_date:
+            filter.append({ '$gte': [ '$$action.time', from_date ]})
+        if to_date:
+            filter.append({ '$lte': [ '$$action.time', to_date ]})
+        if typesList: 
+            filter.append({ '$in' : ['$$action.type', typesList ]})
+        return filter
+
 
     def _createActionModel(self, action):
         _properties = action.get('properties')

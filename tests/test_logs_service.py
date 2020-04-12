@@ -67,7 +67,7 @@ class TestLogService(unittest.TestCase):
         assert result is not None
         assert result == answer
 
-    def test_construct_all_fields_not_None(self):
+    def test_construct_all_match_fields_not_None(self):
         answer = [ 
             { 'userId': '12345' },
             { 'actions.time': { '$gte': '2017-10-17T21:37:28-06:00' } },
@@ -81,14 +81,54 @@ class TestLogService(unittest.TestCase):
 
     ############################################
     #
-    # TESTING LogService._construct_match_array
+    # TESTING LogService._construct_filter_array
     #
     ############################################
-    def test_construct_match_array_empty(self):
-        result = LogService._construct_match_array(None, None, None, None)
+
+    def test_construct_filter_array_empty(self):
+        result = LogService._construct_filter_array(None, None, None)
         assert result is not None
         assert len(result) == 0
 
+    def test_construct_filter_array_from_time(self):
+        answer = [ { '$gte': [ '$$action.time', '2018-10-18T21:37:28-06:00' ]} ]
+        result = LogService._construct_filter_array('2018-10-18T21:37:28-06:00', None, None)
+        assert result is not None
+        assert result == answer
+
+    def test_construct_filter_array_to_time(self):
+        answer = [ { '$lte': [ '$$action.time', '2018-10-18T21:37:28-06:00' ]}  ]
+        result = LogService._construct_filter_array(None,'2018-10-18T21:37:28-06:00', None)
+        assert result is not None
+        assert result == answer
+
+    def test_construct_filter_array_from_to_time(self):
+        answer = [ { '$gte': [ '$$action.time', '2017-10-18T21:37:28-06:00' ]}, { '$lte': [ '$$action.time', '2018-10-18T21:37:28-06:00' ]} ]
+        result = LogService._construct_filter_array('2017-10-18T21:37:28-06:00', '2018-10-18T21:37:28-06:00', None)
+        assert result is not None
+        assert result == answer
+
+    def test_construct_filter_array_from_to_time(self):
+        answer = [ { '$in' : ['$$action.type', ['CLICK', 'VIEW'] ]} ]
+        result = LogService._construct_filter_array(None, None, ['CLICK', 'VIEW'])
+        assert result is not None
+        assert result == answer
+
+    def test_construct_all_filter_fields_not_None(self):
+        answer = [ 
+            { '$gte': [ '$$action.time', '2017-10-18T21:37:28-06:00' ]}, 
+            { '$lte': [ '$$action.time', '2018-10-18T21:37:28-06:00' ]},
+            { '$in' : ['$$action.type', ['CLICK', 'VIEW', 'NAVIGATE'] ]}  
+            ]
+        result = LogService._construct_filter_array('2017-10-18T21:37:28-06:00', '2018-10-18T21:37:28-06:00', ['CLICK', 'VIEW', 'NAVIGATE' ])
+        assert result is not None
+        assert result == answer
+
+    ############################################
+    #
+    # TESTING LogService.get_logs
+    #
+    ############################################
     def test_empty_logs(self):
         result = LogService.get_logs(None, None, None, None)
         assert len(result) == 0
