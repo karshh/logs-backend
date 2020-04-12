@@ -1,5 +1,5 @@
-from db import mongo
 from bson.json_util import dumps, loads
+from database.log import Log
 
 
 class _LogService:
@@ -42,15 +42,18 @@ class _LogService:
                     "sessionId": 1
                 }
             })
-        cursor = mongo.db.logs.aggregate(pipeline)
+        pipeline.append({ '$redact': {
+        '$cond': {
+           'if': { '$ne': ['actions', '[]'] },
+           'then': "$$DESCEND",
+           'else': "$$PRUNE"
+         }
+       }})
+        cursor = Log.objects.aggregate(pipeline)
         return loads(dumps(cursor))
 
     def add_log(self, userId, sessionId, actions):
-        inserted_data = mongo.db.logs.update(
-            { 'userId': userId, 'sessionId': sessionId },
-            { '$push': { 'actions': { '$each': actions } }}, 
-            upsert=True
-            )
+        inserted_data = Log.objects(userId=userId, sessionId=sessionId).update_one(push_all__actions=actions, upsert=True)
         return inserted_data
 
 LogService = _LogService()
