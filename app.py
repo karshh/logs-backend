@@ -1,9 +1,13 @@
 from flask import Flask
 from flask import request
 from flask.json import jsonify
-from service.logs_service import get_all_logs, get_a_log, add_log
-app = Flask(__name__)
+from db import mongo
+from settings import MONGO_URL
 
+from service.logs_service import get_all_logs, add_log
+app = Flask(__name__)
+app.config["MONGO_URI"] = MONGO_URL
+mongo.init_app(app)
 
 @app.route('/logs')
 def GetLogs():
