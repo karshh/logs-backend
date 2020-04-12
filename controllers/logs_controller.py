@@ -14,7 +14,9 @@ def get_logs():
 
     typesList = []
     if types is not None: typesList = types.split(',')
-    return jsonify(LogService.get_logs(userId, from_date, to_date, typesList))
+
+    result = LogService.get_logs(userId, from_date, to_date, typesList)
+    return jsonify(result)
 
 @logs.route('/', methods=['POST'])
 def add_log():
@@ -23,8 +25,9 @@ def add_log():
     userId = data.get('userId')
     sessionId = data.get('sessionId')
     actions = data.get('actions') 
-    if not userId: return jsonify({ 'code': 'MISSING_USERID'}), 400 
-    if not sessionId: return jsonify({ 'code': 'MISSING_SESSIONID'}), 400 
-    if not actions: return jsonify({ 'error': 'MISSING_ACTIONS'}), 400 
-    LogService.add_log(userId, sessionId, actions)
-    return jsonify(data), 200
+    
+    try:
+        result = LogService.add_log(userId, sessionId, actions)
+    except ValueError as e:
+            return {'success': False, 'code': str(e) }, 400
+    return jsonify(result), 200
