@@ -14,7 +14,7 @@ class TestLogService(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        connect('mongoenginetest', host='mongomock://localhost')
+        connect('mongoenginetest', host='mongodb://localhost:27017/pytest')
 
     @classmethod
     def tearDownClass(cls):
@@ -88,13 +88,6 @@ class TestLogService(unittest.TestCase):
         result = LogService._construct_match_array(None, None, None, None)
         assert result is not None
         assert len(result) == 0
-
-    def test_construct_match_array_empty(self):
-        result = LogService._construct_match_array(None, None, None, None)
-        assert result is not None
-        assert len(result) == 0
-
-
 
     def test_empty_logs(self):
         result = LogService.get_logs(None, None, None, None)
@@ -255,3 +248,92 @@ class TestLogService(unittest.TestCase):
         log1.delete()
         log2.delete()
 
+
+    def test_logs_with_a_from_and_to(self):
+        answer1 = [{ 
+            "userId": "12345", 
+            "sessionId": "asdfg", 
+            "actions" : [
+                {
+                    "time": "2018-10-17T21:37:28-06:00",
+                    "properties": {
+                        "locationX": 52,
+                        "locationY": 22
+                    },
+                    "type": "CLICK"
+                }
+            ]},{
+            "userId": "ASDFG", 
+            "sessionId": "12345", 
+            "actions" : [
+                {
+                    "time": "2018-10-18T21:37:28-06:00",
+                    "properties": {
+                        "viewedId": "12345"
+                    },
+                    "type": "VIEW"
+                }
+            ]},
+            ]
+
+        answer2 = [{ 
+            "userId": "12345", 
+            "sessionId": "asdfg", 
+            "actions" : [
+                {
+                    "time": "2018-10-19T21:37:28-06:00",
+                    "properties": {
+                        "pageFrom": 'X',
+                        "pageTo": 'Y'
+                    },
+                    "type": "NAVIGATE"
+                }
+            ]},{
+            "userId": "ASDFG", 
+            "sessionId": "12345", 
+            "actions" : [
+                {
+                    "time": "2018-10-20T21:37:28-06:00",
+                    "properties": {
+                        "locationX": 60,
+                        "locationY": 30
+                    },
+                    "type": "CLICK"
+                }
+            ]},
+            ]
+        answer3 = [{
+            "userId": "ASDFG", 
+            "sessionId": "12345", 
+            "actions" : [
+                {
+                    "time": "2018-10-18T21:37:28-06:00",
+                    "properties": {
+                        "viewedId": "12345",
+                    },
+                    "type": "VIEW"
+                }
+            ]}]
+            
+        action1 = Action(_time='2018-10-17T21:37:28-06:00', _type='CLICK', _properties=ClickProperties(locationX=52, locationY=22))
+        action2 = Action(_time='2018-10-19T21:37:28-06:00', _type='NAVIGATE', _properties=NavigateProperties(pageFrom='X', pageTo='Y'))
+        log1 = Log(userId='12345', sessionId='asdfg', actions=[ action1, action2 ])
+        action3 = Action(_time='2018-10-18T21:37:28-06:00', _type='VIEW', _properties=ViewProperties(viewedId='12345'))
+        action4 = Action(_time='2018-10-20T21:37:28-06:00', _type='CLICK', _properties=ClickProperties(locationX=60, locationY=30))
+        log2 = Log(userId='ASDFG', sessionId='12345', actions=[ action3, action4 ])
+        log1.save()
+        log2.save()
+        result1 = LogService.get_logs(None, None, '2018-10-19T00:00:00-06:00', None)
+        assert result1 is not None
+        print(result1)
+        assert result1 == answer1
+
+        result2 = LogService.get_logs(None, '2018-10-19T00:00:00-06:00', None, None)
+        assert result2 is not None
+        assert result2 == answer2
+
+        result3 = LogService.get_logs(None, '2018-10-18T00:00:00-06:00', '2018-10-19T00:00:00-06:00', None)
+        assert result3 is not None
+        assert result3 == answer3
+        log1.delete()
+        log2.delete()
