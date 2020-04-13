@@ -14,6 +14,7 @@ class TestLogService(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        disconnect()
         connect('mongoenginetest', host='mongodb://localhost:27017/pytest')
 
     @classmethod
