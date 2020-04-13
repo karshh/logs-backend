@@ -547,3 +547,55 @@ class TestLogController(TestCase):
         r = self.w.post_json('/logs/', body, expect_errors=True)
         assert r.status_int == 400
         assert r.json == {'success': False, 'code': 'MISSING_TIME_VALUE' }
+
+
+    def add_valid_log(self):
+        body = {
+            "userId": "ABC123XYZ",
+            "sessionId": "XYZ456ABC",
+            "actions": [
+                {
+                "time": "2018-10-18T21:37:28-06:00",
+                "type": "CLICK",
+                "properties": {
+                    "locationX": 52,
+                    "locationY": 11
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "VIEW",
+                "properties": {
+                    "viewedId": "FDJKLHSLD"
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "NAVIGATE",
+                "properties": {
+                    "pageFrom": "communities",
+                    "pageTo": "inventory"
+                }
+                }
+            ]
+        }
+
+
+        r = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r.status_int == 200
+        assert r.json == {'success': True }
+
+        log = Log.objects(userId='ABC123XYZ')
+
+        assert log is not None
+        assert len(log) == 1
+        assert log[0].get('userId') == 'ABC123XYZ'
+        assert log[0].get('sessionId') == 'XYZ456ABC'
+        actions = log[0].get('actions') 
+        assert actions is not None
+        assert len(actions) == 3
+        assert actions[0] == Action(_time="2018-10-18T21:37:28-06:00", _type="CLICK", _properties=ClickProperties(locationX=52, locationY=11))
+        assert actions[1] == Action(_time="2018-10-18T21:37:30-06:00", _type="VIEW", _properties=ViewProperties(viewedId="FDJKLHSLD"))
+        assert actions[2] == Action(_time="2018-10-18T21:37:30-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom="communities", pageTo="inventory"))
+        Log.objects().delete()
+    
