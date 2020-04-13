@@ -122,7 +122,7 @@ Validations in this body:
 - Each log must have a `sessionId` and `userId` value
 - Each log must have atleast 1 `action`
 - Each `action` must have a `time` of format `%Y-%m-%dT%H:%M:%S-06:00`
-- Each `action` must have a `type` of value `NAVIGATE`, `VALID` or `CLICK`
+- Each `action` must have a `type` of value `NAVIGATE`, `VIEW` or `CLICK`
 - For a `NAVIGATE` type, `properties` must have a `pageFrom` and `pageTo` value.
 - For a `CLICK` type, `properties` must have a `locationX` and `locationY` value.
 - For a `VIEW` type, `properties` must have a `viewedId` value.
@@ -133,7 +133,7 @@ Voilation of this validation results in a 400 status error with the appropriate 
 
 This is my first time using heroku for deployment. As such, I did the following steps:
 
-- Install Heroku CLI
+- Install Heroku CLI and log in using the command ```heroku login```
 - Clone the project
     ```bash
     git clone https://github.com/karshh/oh-backend.git logstore
