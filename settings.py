@@ -12,3 +12,4 @@ load_dotenv(dotenv_path=env_path)
 
 MONGO_URL = os.getenv("MONGO_URL")
 TEST_MONGO_URL = os.getenv("TEST_MONGO_URL")
+TIME_FORMAT = '%Y-%m-%dT%H:%M:%S-06:00'

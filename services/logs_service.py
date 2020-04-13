@@ -4,16 +4,17 @@ from database.action import Action
 from database.properties import ViewProperties, NavigateProperties, ClickProperties
 from flask.json import jsonify
 from datetime import datetime
+from settings import TIME_FORMAT
 
 class _LogService:
 
     def get_logs(self, userId, from_date, to_date, typesList):
 
         try:
-            if from_date is not None: datetime.strptime(from_date, '%Y-%m-%dT%H:%M:%S%z')
-            if to_date is not None: datetime.strptime(to_date, '%Y-%m-%dT%H:%M:%S%z')
+            if from_date is not None: datetime.strptime(from_date, TIME_FORMAT)
+            if to_date is not None: datetime.strptime(to_date, TIME_FORMAT)
         except:
-            raise ValueError('INCORRECT_DATE_FORMAT')
+            raise ValueError('INVALID_TIME_FORMAT')
         
         #ignore objectID's and generated _cls from the result. 
         pipeline = [{ "$project": { "_id": 0, "actions.properties._cls": 0 }}]
@@ -108,7 +109,7 @@ class _LogService:
         _time = action.get('time')
         if not _time: raise ValueError("MISSING_TIME_VALUE")
         try:
-            datetime.strptime(_time,'%Y-%m-%dT%H:%M:%S%z')
+            datetime.strptime(_time,TIME_FORMAT)
         except:
             raise ValueError("INVALID_TIME_FORMAT")
 

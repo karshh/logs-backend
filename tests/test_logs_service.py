@@ -144,6 +144,14 @@ class TestLogService(unittest.TestCase):
             assert False
         except ValueError as e:
             assert str(e) == "INVALID_TIME_FORMAT"
+
+    def test_invalid_time_format_2(self):
+        try:
+            LogService._createActionModel({ "time": "2018-10-18T21:37:28-04:00", "type": "VIEW", "properties": { "viewedId": "12345" } })
+            assert False
+        except ValueError as e:
+            assert str(e) == "INVALID_TIME_FORMAT"
+            
     def test_invalid_type_input(self):
         try:
             LogService._createActionModel({ "time": "2018-10-20T21:37:28-06:00", "type": "VIEWS", "properties": { "viewedId": "12345" } })
@@ -220,9 +228,31 @@ class TestLogService(unittest.TestCase):
     # TESTING LogService.get_logs
     #
     ############################################
+
     def test_empty_logs(self):
         result = LogService.get_logs(None, None, None, None)
         assert len(result) == 0
+
+    def test_invalid_datetime_format_logs(self):
+        try:
+            result = LogService.get_logs(None, '2018-10-20T21:37:28-04:00', None, None)
+            assert False
+        except Exception as e:
+            assert str(e) == "INVALID_TIME_FORMAT"
+
+    def test_invalid_datetime_format_logs_2(self):
+        try:
+            result = LogService.get_logs(None, None, '2018-10-20T21:37:28-04:00', None)
+            assert False
+        except Exception as e:
+            assert str(e) == "INVALID_TIME_FORMAT"
+
+    def test_invalid_datetime_format_logs_3(self):
+        try:
+            result = LogService.get_logs(None, '2018-10-20T21:37:28-04:00', '2018-10-20T21:37:28-04:00', None)
+            assert False
+        except Exception as e:
+            assert str(e) == "INVALID_TIME_FORMAT"
 
     def test_logs_with_an_existing_log(self):
         answer = [{ 
