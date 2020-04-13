@@ -122,7 +122,7 @@ Validations in this body:
 - Each log must have a `sessionId` and `userId` value
 - Each log must have atleast 1 `action`
 - Each `action` must have a `time` of format `%Y-%m-%dT%H:%M:%S-06:00`
-- Each `action` must have a type `NAVIGATE`, `VALID` or `CLICK`
+- Each `action` must have a `type` of value `NAVIGATE`, `VALID` or `CLICK`
 - For a `NAVIGATE` type, `properties` must have a `pageFrom` and `pageTo` value.
 - For a `CLICK` type, `properties` must have a `locationX` and `locationY` value.
 - For a `VIEW` type, `properties` must have a `viewedId` value.
