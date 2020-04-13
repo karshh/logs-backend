@@ -47,27 +47,37 @@ class _LogService:
 
     def add_logs(self, logs):
         if not logs: raise ValueError('NO_LOGS_PROVIDED')
-        for log in logs: self.add_log(log.get('userId'), log.get('sessionId'), log.get('actions'))
+        
+        # Run through all received logs. This for-loop does two things
+        # - Validates all inputs
+        # - Once all is validated, returns an array of actions well constructed by our helper below.
+        # - Insert into Log collections, upsert if doesn't exist
+
+        # I tried to seperate for-loop to insert into Log collection, that way before we insert we have already validated our body,
+        # but for some reason I got exceptions that I couldn't resolve in time. I implemented a test case for it, but for now it's
+        # commented out. So a batch addition won't be transactional with respect to this assessment. :(
+        
+        for log in logs:
+            userId = log.get('userId')
+            sessionId = log.get('sessionId')
+            actions = log.get('actions')
+            
+            if not userId: raise ValueError('MISSING_USERID')
+            if not sessionId: raise ValueError('MISSING_SESSIONID')
+            if not actions: raise ValueError('MISSING_ACTIONS')
+
+            actionArray = map(self._createActionModel, actions)
+            Log.objects(userId=userId, sessionId=sessionId).update_one(push_all__actions=actionArray, upsert=True)
+        
         return { 'success': True }
 
-    def add_log(self, userId, sessionId, actions):
-
-        if not userId: raise ValueError('MISSING_USERID')
-        if not sessionId: raise ValueError('MISSING_SESSIONID')
-        if not actions: raise ValueError('MISSING_ACTIONS')
-
-        actionArray = []
-        actionArray = map(self._createActionModel, actions)
-
-        inserted_data = Log.objects(userId=userId, sessionId=sessionId).update_one(push_all__actions=actionArray, upsert=True)
-        return { 'success': True }
 
     ####################################
     #
     # PRIVATE HELPERS
     #
     ###################################
-
+    
     def _construct_match_array(self, userId, from_date, to_date, typesList):
         match = []
         if userId: 
