@@ -26,6 +26,7 @@ class TestLogController(TestCase):
     ############################################
 
     def test_status_code_with_valid_get_request(self):
+        Log.objects().delete()
         r = self.w.get('/logs/?')
         # Assert there was no messages flushed:
         assert r is not None
@@ -33,6 +34,7 @@ class TestLogController(TestCase):
         assert r.status_int < 400
 
     def test_retrieving_valid_log(self):
+        Log.objects().delete()
         answer = [ 
             { 
                 'userId': '12345', 
@@ -59,6 +61,7 @@ class TestLogController(TestCase):
 
 
     def test_retrieving_log_by_user(self):
+        Log.objects().delete()
         answer1 = [ 
             { 
                 'userId': 'ASDF', 
@@ -109,6 +112,7 @@ class TestLogController(TestCase):
 
         
     def test_retrieving_log_by_from_to(self):
+        Log.objects().delete()
         answer1 = [{ 
             "userId": "12345", 
             "sessionId": "asdfg", 
@@ -196,6 +200,7 @@ class TestLogController(TestCase):
         log2.delete()
 
     def test_retrieving_logs_with_matching_types(self):
+        Log.objects().delete()
         answer1 = [{ 
             "userId": "12345", 
             "sessionId": "asdfg", 
@@ -291,6 +296,7 @@ class TestLogController(TestCase):
         log2.delete()
 
     def test_retrieving_with_invalid_type(self):
+        Log.objects().delete()
         answer = [
             {
                 'userId': '12345',
@@ -326,11 +332,13 @@ class TestLogController(TestCase):
     ############################################
 
     def test_no_body(self):
+        Log.objects().delete()
         r1 = self.w.post_json('/logs/', None, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'NO_LOGS_PROVIDED' }
 
     def test_no_userId(self):
+        Log.objects().delete()
         body = [{ 
             'sessionId': '12345', 
             'actions' : [
@@ -349,6 +357,7 @@ class TestLogController(TestCase):
         assert r1.json == {'success': False, 'code': 'MISSING_USERID' }
 
     def test_no_sessionId(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'actions' : [
@@ -367,6 +376,7 @@ class TestLogController(TestCase):
         assert r1.json == {'success': False, 'code': 'MISSING_SESSIONID' }
 
     def test_no_actions(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345',
             'sessionId': '1234'
@@ -377,6 +387,7 @@ class TestLogController(TestCase):
         assert r1.json == {'success': False, 'code': 'MISSING_ACTIONS' }
 
     def test_empty_actions(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345',
             'sessionId': '1234',
@@ -389,6 +400,7 @@ class TestLogController(TestCase):
 
 
     def test_invalid_time(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -408,6 +420,7 @@ class TestLogController(TestCase):
         assert r1.json == {'success': False, 'code': 'INVALID_TIME_FORMAT' }
 
     def test_invalid_type(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -428,6 +441,7 @@ class TestLogController(TestCase):
 
 
     def test_invalid_type(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -447,6 +461,7 @@ class TestLogController(TestCase):
         assert r1.json == {'success': False, 'code': 'INVALID_ACTION_TYPE' }
 
     def test_invalid_navigate(self):
+        Log.objects().delete()
         body1 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -481,6 +496,7 @@ class TestLogController(TestCase):
         assert r2.json == {'success': False, 'code': 'MISSING_PAGETO_VALUE' }
 
     def test_invalid_click(self):
+        Log.objects().delete()
         body1 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -515,6 +531,7 @@ class TestLogController(TestCase):
         assert r2.json == {'success': False, 'code': 'MISSING_LOCATION_X_VALUE' }
     
     def test_invalid_click(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -533,6 +550,7 @@ class TestLogController(TestCase):
         assert r.json == {'success': False, 'code': 'MISSING_VIEWEDID_VALUE' }
 
     def test_missing_time(self):
+        Log.objects().delete()
         body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
@@ -551,6 +569,7 @@ class TestLogController(TestCase):
 
 
     def add_valid_log(self):
+        Log.objects().delete()
         body = [{
             "userId": "ABC123XYZ",
             "sessionId": "XYZ456ABC",

@@ -31,8 +31,9 @@ To test, run:
 ```bash
 pytest
 ```
+Note: Although I clear the test log collection before running each test that interacts with it, as a precaution clear or drop your log collection before running pytest. 
 
-to run the app, run:
+To run the app, run:
 ```bash
 python app.py
 ```
@@ -161,7 +162,6 @@ This step had bootstrapped the heroku app for me at ```https://app-name.herokuap
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
 - The validations of the body is done prior to inserting into the db, rather than a mongo-specific solution. The body doesn't get inserted if even one of the logs is invalid, and this validation check is done in code. 
-
 
 ### Answer to Follow-up question
 I would do the following to make this application more cloud-scalable:
