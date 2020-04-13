@@ -127,7 +127,9 @@ Validations in this body:
 - For a `CLICK` type, `properties` must have a `locationX` and `locationY` value.
 - For a `VIEW` type, `properties` must have a `viewedId` value.
 
-Voilation of this validation results in a 400 status error with the appropriate error code sent in body.
+Voilation of this validation results in
+- The body not being inserted into the db.
+- 400 status error with the appropriate error code sent in response.
 
 ### Deployment
 
