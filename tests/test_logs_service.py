@@ -377,7 +377,6 @@ class TestLogService(unittest.TestCase):
         log1.delete()
         log2.delete()
 
-
     def test_logs_with_a_from_and_to(self):
         answer1 = [{ 
             "userId": "12345", 
@@ -454,7 +453,6 @@ class TestLogService(unittest.TestCase):
         log2.save()
         result1 = LogService.get_logs(None, None, '2018-10-19T00:00:00-06:00', None)
         assert result1 is not None
-        print(result1)
         assert result1 == answer1
 
         result2 = LogService.get_logs(None, '2018-10-19T00:00:00-06:00', None, None)
@@ -466,3 +464,105 @@ class TestLogService(unittest.TestCase):
         assert result3 == answer3
         log1.delete()
         log2.delete()
+
+    ############################################
+    #
+    # TESTING LogService.add_log
+    #
+    ############################################
+    def test_add_none(self):
+        try:
+            result = LogService.add_log(None, None, None)
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_USERID"
+
+    def test_miss_userId(self):
+        try:
+            result = LogService.add_log(None, "12345", [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_USERID"
+
+    def test_miss_sessionId(self):
+        try:
+            result = LogService.add_log("1234", None, [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_SESSIONID"
+
+    def test_miss_action(self):
+        try:
+            result = LogService.add_log("1234", "12345", [])
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_ACTIONS"
+
+
+    def test_result_success(self):
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            assert result is not None
+            assert result.get('success') is True
+            Log.objects().delete()
+
+    def test_add_valid_action(self):
+            action = Action(_type="VIEW", _properties=ViewProperties(viewedId="12345"), _time="2018-10-20T21:37:28-06:00")
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            
+            logs = Log.objects(userId="1234")
+            assert logs is not None
+            assert len(logs) == 1
+            assert logs[0].userId == "1234"
+            assert logs[0].sessionId == "12345"
+            assert logs[0].actions == [ action ]
+            Log.objects().delete()
+
+    def test_add_valid_action_non_upserted(self):
+            action1 = Action(_type="VIEW", _properties=ViewProperties(viewedId="12345"), _time="2018-10-20T21:37:28-06:00")
+            action2 = Action(_type="NAVIGATE", _properties=NavigateProperties(pageFrom="X", pageTo="Y"), _time="2018-10-20T21:37:28-06:00")
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            result = LogService.add_log("12345", "ASDF",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageFrom": "X", "pageTo": "Y" } }])
+            
+            logs = Log.objects()
+            assert logs is not None
+            assert len(logs) == 2
+            assert logs[0].userId == "1234"
+            assert logs[0].sessionId == "12345"
+            assert logs[0].actions == [ action1 ]
+
+            assert logs[1].userId == "12345"
+            assert logs[1].sessionId == "ASDF"
+            assert logs[1].actions == [ action2 ]
+            Log.objects().delete()
+
+    def test_add_valid_action_upserted(self):
+            action1 = Action(_type="VIEW", _properties=ViewProperties(viewedId="12345"), _time="2018-10-20T21:37:28-06:00")
+            action2 = Action(_type="NAVIGATE", _properties=NavigateProperties(pageFrom="X", pageTo="Y"), _time="2018-10-20T21:37:28-06:00")
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageFrom": "X", "pageTo": "Y" } }])
+            
+            logs = Log.objects()
+            assert logs is not None
+            assert len(logs) == 1
+            assert logs[0].userId == "1234"
+            assert logs[0].sessionId == "12345"
+            assert logs[0].actions == [ action1, action2 ]
+            Log.objects().delete()
+
+    def test_add_valid_action_non_upserted_different_session(self):
+            action1 = Action(_type="VIEW", _properties=ViewProperties(viewedId="12345"), _time="2018-10-20T21:37:28-06:00")
+            action2 = Action(_type="NAVIGATE", _properties=NavigateProperties(pageFrom="X", pageTo="Y"), _time="2018-10-20T21:37:28-06:00")
+            result = LogService.add_log("1234", "12345",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW", "properties": { "viewedId": "12345" } }])
+            result = LogService.add_log("1234", "ASDF",  [{ "time": "2018-10-20T21:37:28-06:00", "type": "NAVIGATE", "properties": { "pageFrom": "X", "pageTo": "Y" } }])
+            
+            logs = Log.objects()
+            assert logs is not None
+            assert len(logs) == 2
+            assert logs[0].userId == "1234"
+            assert logs[0].sessionId == "12345"
+            assert logs[0].actions == [ action1 ]
+
+            assert logs[1].userId == "1234"
+            assert logs[1].sessionId == "ASDF"
+            assert logs[1].actions == [ action2 ]
+            Log.objects().delete()
