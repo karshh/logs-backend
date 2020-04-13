@@ -33,6 +33,27 @@ class TestLogController(TestCase):
         assert r.content_type == 'application/json'
         assert r.status_int < 400
 
+    def test_retrieving_with_invalid_from_date(self):
+        Log.objects().delete()
+        r = self.w.get('/logs/?from=2018-10-18T21:37:28-04:00', expect_errors=True)
+        # Assert there was no messages flushed:
+        assert r.status_int == 400
+        assert r.json == { 'code': 'INVALID_TIME_FORMAT', 'success': False }
+
+    def test_retrieving_with_invalid_to_date(self):
+        Log.objects().delete()
+        r = self.w.get('/logs/?to=2018-10-18T21:37:28-04:00', expect_errors=True)
+        # Assert there was no messages flushed:
+        assert r.status_int == 400
+        assert r.json == { 'code': 'INVALID_TIME_FORMAT', 'success': False }
+
+    def test_retrieving_with_invalid_from_and_to_date(self):
+        Log.objects().delete()
+        r = self.w.get('/logs/?from=2018-10-18T21:37:28-04:00&to=2018-10-18T21:37:28-04:00', expect_errors=True)
+        # Assert there was no messages flushed:
+        assert r.status_int == 400
+        assert r.json == { 'code': 'INVALID_TIME_FORMAT', 'success': False }
+
     def test_retrieving_valid_log(self):
         Log.objects().delete()
         answer = [ 

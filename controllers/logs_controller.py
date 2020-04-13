@@ -15,7 +15,10 @@ def get_logs():
     typesList = []
     if types is not None: typesList = types.split(',')
 
-    result = LogService.get_logs(userId, from_date, to_date, typesList)
+    try:
+        result = LogService.get_logs(userId, from_date, to_date, typesList)
+    except ValueError as e:
+            return {'success': False, 'code': str(e) }, 400
     return jsonify(result)
 
 @logs.route('/', methods=['POST'])
