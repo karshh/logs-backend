@@ -40,7 +40,7 @@ python app.py
 
 ### API Doc
 
-##### `GET /logs/`
+- #### `GET /logs/`
 
 Gets an array of logs. Optional Query Parameters
 - `userId`: Retrieves logs that match the userId value
@@ -52,7 +52,7 @@ Example:
 
 `GET /logs/?userId=ASDF&types=CLICK,VIEW,NAVIGATE&from=2019-10-18T21:37:28-06:00&to=2019-11-18T21:37:28-06:00`
 
-##### `POST /logs/`
+- #### `POST /logs/`
 Validates and inserts logs into storage. Accepts JSON as format. Example of a body that is accepted:
 
 <details>
