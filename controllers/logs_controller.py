@@ -19,15 +19,10 @@ def get_logs():
     return jsonify(result)
 
 @logs.route('/', methods=['POST'])
-def add_log():
+def add_logs():
     data = request.get_json()
-
-    userId = data.get('userId')
-    sessionId = data.get('sessionId')
-    actions = data.get('actions') 
-    
     try:
-        result = LogService.add_log(userId, sessionId, actions)
+        result = LogService.add_logs(data)
     except ValueError as e:
             return {'success': False, 'code': str(e) }, 400
     return jsonify(result), 200

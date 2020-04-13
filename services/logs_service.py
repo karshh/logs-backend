@@ -45,6 +45,11 @@ class _LogService:
         cursor = Log.objects.aggregate(pipeline)
         return loads(dumps(cursor))
 
+    def add_logs(self, logs):
+        if logs is None: raise ValueError('NO_LOGS_PROVIDED')
+        for log in logs: self.add_log(log.get('userId'), log.get('sessionId'), log.get('actions'))
+        return { 'success': True }
+
     def add_log(self, userId, sessionId, actions):
 
         if not userId: raise ValueError('MISSING_USERID')

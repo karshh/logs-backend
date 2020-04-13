@@ -325,12 +325,12 @@ class TestLogController(TestCase):
     ############################################
 
     def test_no_body(self):
-        r1 = self.w.post_json('/logs/', { }, expect_errors=True)
+        r1 = self.w.post_json('/logs/', None, expect_errors=True)
         assert r1.status_int == 400
-        assert r1.json == {'success': False, 'code': 'MISSING_USERID' }
+        assert r1.json == {'success': False, 'code': 'NO_LOGS_PROVIDED' }
 
     def test_no_userId(self):
-        body = { 
+        body = [{ 
             'sessionId': '12345', 
             'actions' : [
                 {
@@ -341,14 +341,14 @@ class TestLogController(TestCase):
                         'locationY': 22
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'MISSING_USERID' }
 
     def test_no_sessionId(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'actions' : [
                 {
@@ -359,28 +359,28 @@ class TestLogController(TestCase):
                         'locationY': 22
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'MISSING_SESSIONID' }
 
     def test_no_actions(self):
-        body = { 
+        body = [{ 
             'userId': '12345',
             'sessionId': '1234'
-            }
+            }]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'MISSING_ACTIONS' }
 
     def test_empty_actions(self):
-        body = { 
+        body = [{ 
             'userId': '12345',
             'sessionId': '1234',
             'actions': []
-            }
+            }]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
@@ -388,7 +388,7 @@ class TestLogController(TestCase):
 
 
     def test_invalid_time(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -400,14 +400,14 @@ class TestLogController(TestCase):
                         'locationY': 22
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'INVALID_TIME_FORMAT' }
 
     def test_invalid_type(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -419,7 +419,7 @@ class TestLogController(TestCase):
                         'locationY': 22
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
@@ -427,7 +427,7 @@ class TestLogController(TestCase):
 
 
     def test_invalid_type(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -439,14 +439,14 @@ class TestLogController(TestCase):
                         'locationY': 22
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body, expect_errors=True)
         assert r1.status_int == 400
         assert r1.json == {'success': False, 'code': 'INVALID_ACTION_TYPE' }
 
     def test_invalid_navigate(self):
-        body1 = { 
+        body1 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -457,8 +457,8 @@ class TestLogController(TestCase):
                         'pageTo': '22'
                     }
                 }
-            ]}
-        body2 = { 
+            ]}]
+        body2 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -469,7 +469,7 @@ class TestLogController(TestCase):
                         'pageFrom': '22'
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body1, expect_errors=True)
         assert r1.status_int == 400
@@ -480,7 +480,7 @@ class TestLogController(TestCase):
         assert r2.json == {'success': False, 'code': 'MISSING_PAGETO_VALUE' }
 
     def test_invalid_click(self):
-        body1 = { 
+        body1 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -491,8 +491,8 @@ class TestLogController(TestCase):
                         'locationX': 22
                     }
                 }
-            ]}
-        body2 = { 
+            ]}]
+        body2 = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -503,7 +503,7 @@ class TestLogController(TestCase):
                         'locationY': 23
                     }
                 }
-            ]}
+            ]}]
 
         r1 = self.w.post_json('/logs/', body1, expect_errors=True)
         assert r1.status_int == 400
@@ -514,7 +514,7 @@ class TestLogController(TestCase):
         assert r2.json == {'success': False, 'code': 'MISSING_LOCATION_X_VALUE' }
     
     def test_invalid_click(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -525,14 +525,14 @@ class TestLogController(TestCase):
                         'asdf': 'asdf'
                     }
                 }
-            ]}
+            ]}]
 
         r = self.w.post_json('/logs/', body, expect_errors=True)
         assert r.status_int == 400
         assert r.json == {'success': False, 'code': 'MISSING_VIEWEDID_VALUE' }
 
     def test_missing_time(self):
-        body = { 
+        body = [{ 
             'userId': '12345', 
             'sessionId': '1234',
             'actions' : [
@@ -542,7 +542,7 @@ class TestLogController(TestCase):
                         'asdf': 'asdf'
                     }
                 }
-            ]}
+            ]}]
 
         r = self.w.post_json('/logs/', body, expect_errors=True)
         assert r.status_int == 400
@@ -550,7 +550,7 @@ class TestLogController(TestCase):
 
 
     def add_valid_log(self):
-        body = {
+        body = [{
             "userId": "ABC123XYZ",
             "sessionId": "XYZ456ABC",
             "actions": [
@@ -578,7 +578,29 @@ class TestLogController(TestCase):
                 }
                 }
             ]
-        }
+        },
+        { 
+            "userId": "asd", 
+            "sessionId": "asdfg", 
+            "actions" : [
+                {
+                    "time": "2018-10-18T21:37:28-06:00",
+                    "type": "CLICK",
+                    "properties": {
+                        "locationX": 60,
+                        "locationY": 70
+                    }
+                },
+                {
+                    "time": "2018-10-20T21:37:28-06:00",
+                    "type": "NAVIGATE",
+                    "properties": {
+                        "pageFrom": "X",
+                        "pageTo": "Y"
+                    }
+                }
+            ]
+        }]
 
 
         r = self.w.post_json('/logs/', body, expect_errors=True)
@@ -588,7 +610,7 @@ class TestLogController(TestCase):
         log = Log.objects(userId='ABC123XYZ')
 
         assert log is not None
-        assert len(log) == 1
+        assert len(log) == 2
         assert log[0].get('userId') == 'ABC123XYZ'
         assert log[0].get('sessionId') == 'XYZ456ABC'
         actions = log[0].get('actions') 
@@ -598,4 +620,13 @@ class TestLogController(TestCase):
         assert actions[1] == Action(_time="2018-10-18T21:37:30-06:00", _type="VIEW", _properties=ViewProperties(viewedId="FDJKLHSLD"))
         assert actions[2] == Action(_time="2018-10-18T21:37:30-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom="communities", pageTo="inventory"))
         Log.objects().delete()
-    
+
+
+        assert log[1].get('userId') == 'asd'
+        assert log[1].get('sessionId') == 'asdfg'
+        actions = log[1].get('actions') 
+        assert actions is not None
+        assert len(actions) == 2
+        assert actions[0] == Action(_time="2018-10-18T21:37:28-06:00", _type="CLICK", _properties=ClickProperties(locationX=60, locationY=70))
+        assert actions[1] == Action(_time="2018-10-20T21:37:28-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom="X", pageTo="Y"))
+        Log.objects().delete()
