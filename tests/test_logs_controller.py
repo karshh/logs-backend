@@ -9,7 +9,7 @@ from database.log import Log
 from database.action import Action
 from database.properties import ClickProperties, ViewProperties, NavigateProperties
 
-class ExampleTest(TestCase):
+class TestLogController(TestCase):
     def setUp(self):
         disconnect()
         connect('mongoenginetest', host='mongodb://localhost:27017/pytest')
@@ -17,6 +17,12 @@ class ExampleTest(TestCase):
 
     def tearDown(self):
        disconnect()
+
+    ############################################
+    #
+    # TESTING GET /logs
+    #
+    ############################################
 
     def test_status_code_with_valid_get_request(self):
         r = self.w.get('/logs/?')
@@ -282,3 +288,40 @@ class ExampleTest(TestCase):
         assert r3.json == answer3
         log1.delete()
         log2.delete()
+
+    def test_retrieving_with_invalid_type(self):
+        answer = [
+            {
+                'userId': '12345',
+                'sessionId': 'asdfg',
+                'actions': [
+                    {
+                        'type': 'CLICK',
+                        'properties': {
+                            'locationX': 52,
+                            'locationY': 22
+                        },
+                        'time': '2018-10-17T21:37:28-06:00'
+                    }
+                ]
+                
+            }
+        ]
+        action1 = Action(_time='2018-10-17T21:37:28-06:00', _type='CLICK', _properties=ClickProperties(locationX=52, locationY=22))
+        action2 = Action(_time='2018-10-19T21:37:28-06:00', _type='NAVIGATE', _properties=NavigateProperties(pageFrom='X', pageTo='Y'))
+        log = Log(userId='12345', sessionId='asdfg', actions=[ action1, action2 ])
+        log.save()
+
+        r1 = self.w.get('/logs/?types=CLICK,WRONGTYPE,VIEW')
+        assert r1.status_int == 200
+        assert r1.json == answer
+        log.delete()
+
+
+    ############################################
+    #
+    # TESTING POST /logs
+    #
+    ############################################
+
+    #TODO
