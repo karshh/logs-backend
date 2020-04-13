@@ -8,6 +8,7 @@ from database.action import Action
 from services.logs_service import LogService
 from database.properties import ClickProperties, ViewProperties, NavigateProperties
 from datetime import datetime
+from settings import TEST_MONGO_URL
 
 
 class TestLogService(unittest.TestCase):
@@ -15,7 +16,7 @@ class TestLogService(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         disconnect()
-        connect('mongoenginetest', host='mongodb://localhost:27017/pytest')
+        connect('mongoenginetest', host=TEST_MONGO_URL)
 
     @classmethod
     def tearDownClass(cls):

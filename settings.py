@@ -11,3 +11,4 @@ env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
 MONGO_URL = os.getenv("MONGO_URL")
+TEST_MONGO_URL = os.getenv("TEST_MONGO_URL")

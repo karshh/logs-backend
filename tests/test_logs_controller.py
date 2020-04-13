@@ -8,11 +8,12 @@ from mongoengine import connect, disconnect
 from database.log import Log
 from database.action import Action
 from database.properties import ClickProperties, ViewProperties, NavigateProperties
+from settings import TEST_MONGO_URL
 
 class TestLogController(TestCase):
     def setUp(self):
         disconnect()
-        connect('mongoenginetest', host='mongodb://localhost:27017/pytest')
+        connect('mongoenginetest', host=TEST_MONGO_URL)
         self.w = TestApp(app)
 
     def tearDown(self):
