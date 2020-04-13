@@ -129,6 +129,31 @@ Validations in this body:
 
 Voilation of this validation results in a 400 status error with the appropriate error code sent in body.
 
+### Deployment
+
+This is my first time using heroku for deployment. As such, I did the following steps:
+
+- Install Heroku CLI
+- Clone the project
+    ```bash
+    git clone https://github.com/karshh/oh-backend.git logstore
+    cd logstore
+    ```
+- Run the following command to create a new heroku app: 
+    ```
+    heroku create app-name
+    ```
+- Add MONGO_URL to heroku config. (Replace string with your mongo cloud URL, this is just an example): 
+    ```
+    heroku config:set MONGO_URL='mongodb://<username>:<password>@hostname/prod?retryWrites=false'
+    ```
+- Push code to heroku
+    ```
+    git push heroku master
+    ```
+
+This step had bootstrapped the heroku app for me at ```https://app-name.herokuapp.com```
+
 ### Limitations:
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
