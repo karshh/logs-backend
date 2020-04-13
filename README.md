@@ -54,12 +54,41 @@ Example:
 
 ##### `POST /logs/`
 Validates and inserts logs into storage. Accepts JSON as format. Example of a body that is accepted:
+
 <details>
 <summary>Example</summary>
 <br>
-
 ```json
 [
+    {
+      "userId": "ABC123XYZ",
+      "sessionId": "XYZ456ABC",
+      "actions": [
+        {
+          "time": "2018-10-18T21:37:28-06:00",
+          "type": "CLICK",
+          "properties": {
+            "locationX": 52,
+            "locationY": 11
+          }
+        },
+        {
+          "time": "2018-10-18T21:37:30-06:00",
+          "type": "VIEW",
+          "properties": {
+            "viewedId": "FDJKLHSLD"
+          }
+        },
+        {
+          "time": "2018-10-18T21:37:30-06:00",
+          "type": "NAVIGATE",
+          "properties": {
+            "pageFrom": "communities",
+            "pageTo": "inventory"
+          }
+        }
+      ]
+    },
     { 
     	"userId": "asd", 
     	"sessionId": "asdfg", 
@@ -86,11 +115,17 @@ Validates and inserts logs into storage. Accepts JSON as format. Example of a bo
 ```
 </details>
 
+Validations in this body:
+- Body must have atleast 1 log.
+- Each log must have a `sessionId` and `userId` value
+- Each log must have atleast 1 `action`
+- Each `action` must have a `time` of format `%Y-%m-%dT%H:%M:%S-06:00`
+- Each `action` must have a type `NAVIGATE`, `VALID` or `CLICK`
+- For a `NAVIGATE` type, `properties` must have a `pageFrom` and `pageTo` value.
+- For a `CLICK` type, `properties` must have a `locationX` and `locationY` value.
+- For a `VIEW` type, `properties` must have a `viewedId` value.
 
-
-
-
-
+Voilation of this validation results in a 400 status error with the appropriate error code sent in body.
 
 ### Limitations:
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
