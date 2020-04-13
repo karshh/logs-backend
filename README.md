@@ -58,6 +58,7 @@ Validates and inserts logs into storage. Accepts JSON as format. Example of a bo
 <details>
 <summary>Example</summary>
 <br>
+
 ```json
 [
     {
@@ -113,6 +114,7 @@ Validates and inserts logs into storage. Accepts JSON as format. Example of a bo
     }
 ]
 ```
+
 </details>
 
 Validations in this body:
