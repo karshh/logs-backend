@@ -159,3 +159,10 @@ This step had bootstrapped the heroku app for me at ```https://app-name.herokuap
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
 - I wasn't able to have some transactional way of inserting logs into the DB. For now, this application does not guarantee that if any log has an error, that there will be a rollback. I implemented and commented out a test case for it. Also added in comments in code regarding this.
 
+
+### Answer to Follow-up question
+I would do the following to make this application more cloud-scalable:
+- Starting at the database level, R/W speeds must be as minimal as possible. My sandbox mlab cloud server would probably not be optimal for this, but purchasing a more premium services (or purchasing some beast servers and using them as storage) would be a good idea.
+- Resource-allocation: Ensuring that the application has the appropriate resources it needs to handle traffic. A load balancing service, which may dynamically allocate virtual matches to scale would be a good example here.
+- This application is written in Flask, and only serves 1 request at a time. (Although on researching gunicorn while deploying to heroku, I've read that it takes care of this issue), but a more asynchronous multithreaded solution/framework would probably help resolve more requests at a time.
+- A cache in the implementation can help speed up recently frequent requests if there hasn't been any writes to the database that may have changed the cached value. A tradeoff would be how much resource it eats up.
