@@ -132,4 +132,5 @@ Voilation of this validation results in a 400 status error with the appropriate 
 ### Limitations:
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
+- I wasn't able to have some transactional way of inserting logs into the DB. For now, this application does not guarantee that if any log has an error, that there will be a rollback. I implemented and commented out a test case for it. Also added in comments in code regarding this.
 
