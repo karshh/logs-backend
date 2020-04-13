@@ -607,7 +607,7 @@ class TestLogController(TestCase):
         assert r.status_int == 200
         assert r.json == {'success': True }
 
-        log = Log.objects(userId='ABC123XYZ')
+        log = Log.objects()
 
         assert log is not None
         assert len(log) == 2

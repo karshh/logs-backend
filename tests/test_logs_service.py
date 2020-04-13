@@ -567,3 +567,101 @@ class TestLogService(unittest.TestCase):
             assert logs[1].sessionId == "ASDF"
             assert logs[1].actions == [ action2 ]
             Log.objects().delete()
+
+    ############################################
+    #
+    # TESTING LogService.add_logs
+    #
+    ############################################
+    def test_add_no_log(self):
+        try:
+            result = LogService.add_logs(None)
+            assert False
+        except Exception as e:
+            assert str(e) == "NO_LOGS_PROVIDED"
+
+    def test_add_empty_log(self):
+        try:
+            result = LogService.add_logs([])
+            assert False
+        except Exception as e:
+            assert str(e) == "NO_LOGS_PROVIDED"
+
+    def test_add_valid_log(self):
+        Log.objects().delete()
+
+        body = [{
+            "userId": "ABC123XYZ",
+            "sessionId": "XYZ456ABC",
+            "actions": [
+                {
+                "time": "2018-10-18T21:37:28-06:00",
+                "type": "CLICK",
+                "properties": {
+                    "locationX": 52,
+                    "locationY": 11
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "VIEW",
+                "properties": {
+                    "viewedId": "FDJKLHSLD"
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "NAVIGATE",
+                "properties": {
+                    "pageFrom": "communities",
+                    "pageTo": "inventory"
+                }
+                }
+            ]
+        },
+        { 
+            "userId": "asd", 
+            "sessionId": "asdfg", 
+            "actions" : [
+                {
+                    "time": "2018-10-18T21:37:28-06:00",
+                    "type": "CLICK",
+                    "properties": {
+                        "locationX": 60,
+                        "locationY": 70
+                    }
+                },
+                {
+                    "time": "2018-10-20T21:37:28-06:00",
+                    "type": "NAVIGATE",
+                    "properties": {
+                        "pageFrom": "X",
+                        "pageTo": "Y"
+                    }
+                }
+            ]
+        }]
+        result = LogService.add_logs(body)
+        assert result == { 'success': True }
+        log = Log.objects()
+        assert log is not None
+        assert len(log) == 2
+
+        assert log[0].userId == 'ABC123XYZ'
+        assert log[0].sessionId == 'XYZ456ABC'
+        actions = log[0].actions
+        assert actions is not None
+        assert len(actions) == 3
+        assert actions[0] == Action(_time="2018-10-18T21:37:28-06:00", _type="CLICK", _properties=ClickProperties(locationX=52, locationY=11))
+        assert actions[1] == Action(_time="2018-10-18T21:37:30-06:00", _type="VIEW", _properties=ViewProperties(viewedId="FDJKLHSLD"))
+        assert actions[2] == Action(_time="2018-10-18T21:37:30-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom="communities", pageTo="inventory"))
+        
+        assert log[1].userId == 'asd'
+        assert log[1].sessionId == 'asdfg'
+        actions = log[1].actions
+        assert actions is not None
+        assert len(actions) == 2
+        assert actions[0] == Action(_time="2018-10-18T21:37:28-06:00", _type="CLICK", _properties=ClickProperties(locationX=60, locationY=70))
+        assert actions[1] == Action(_time="2018-10-20T21:37:28-06:00", _type="NAVIGATE", _properties=NavigateProperties(pageFrom="X", pageTo="Y")) 
+        
+        Log.objects().delete()

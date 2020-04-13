@@ -46,7 +46,7 @@ class _LogService:
         return loads(dumps(cursor))
 
     def add_logs(self, logs):
-        if logs is None: raise ValueError('NO_LOGS_PROVIDED')
+        if not logs: raise ValueError('NO_LOGS_PROVIDED')
         for log in logs: self.add_log(log.get('userId'), log.get('sessionId'), log.get('actions'))
         return { 'success': True }
 
