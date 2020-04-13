@@ -557,6 +557,44 @@ class TestLogService(unittest.TestCase):
         except ValueError as e:
             assert str(e) == "MISSING_ACTIONS"
 
+    def test_miss_time(self):
+        Log.objects().delete()
+        try:
+            body = [{
+                'userId': '12345',
+                'sessionId': '12345',
+                'actions':  [{ "type": "VIEW", "properties": { "viewedId": "12345" } }]
+            }]
+            result = LogService.add_logs(body)
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_TIME_VALUE"
+
+    def test_miss_properties(self):
+        Log.objects().delete()
+        try:
+            body = [{
+                'userId': '12345',
+                'sessionId': '12345',
+                'actions':  [{ "time": "2018-10-20T21:37:28-06:00", "type": "VIEW" }]
+            }]
+            result = LogService.add_logs(body)
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_PROPERTIES_VALUE"
+
+    def test_miss_type(self):
+        Log.objects().delete()
+        try:
+            body = [{
+                'userId': '12345',
+                'sessionId': '12345',
+                'actions':  [{ "time": "2018-10-20T21:37:28-06:00", "properties": { "viewedId": "12345" } }]
+            }]
+            result = LogService.add_logs(body)
+            assert False
+        except ValueError as e:
+            assert str(e) == "MISSING_TYPE_VALUE"
 
     def test_result_success(self):
         Log.objects().delete()

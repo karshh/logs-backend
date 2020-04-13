@@ -55,7 +55,7 @@ class _LogService:
         #
         # This way if any log in the body is invalid, then the entire body doesn't get inserted. Simulating a rollback.
         #
-        
+
         logArray = []
 
         for log in logs:
@@ -117,6 +117,8 @@ class _LogService:
         _properties = action.get('properties')
         _type = action.get('type')
         _time = action.get('time')
+        if not _type: raise ValueError("MISSING_TYPE_VALUE")
+        if not _properties: raise ValueError("MISSING_PROPERTIES_VALUE")
         if not _time: raise ValueError("MISSING_TIME_VALUE")
         try:
             datetime.strptime(_time,TIME_FORMAT)
