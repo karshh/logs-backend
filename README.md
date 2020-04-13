@@ -143,6 +143,7 @@ This is my first time using heroku for deployment. As such, I did the following 
     ```
     heroku create app-name
     ```
+- At this step, I added the Procfile to the repo.
 - Add MONGO_URL to heroku config. (Replace string with your mongo cloud URL, this is just an example): 
     ```
     heroku config:set MONGO_URL='mongodb://<username>:<password>@hostname/prod?retryWrites=false'
