@@ -737,70 +737,64 @@ class TestLogService(unittest.TestCase):
         
         Log.objects().delete()
 
-    ############
-    #
-    # This test case fails because I haven't been able to implement transactional session with mongo.
-    #
-    ##############
+    def test_db_doesnt_add_body_if_any_log_is_invalid(self):
+        Log.objects().delete()
 
-    # def test_db_doesnt_add_body_if_invalid(self):
-    #     Log.objects().delete()
-
-    #     body = [{
-    #         "userId": "ABC123XYZ",
-    #         "sessionId": "XYZ456ABC",
-    #         "actions": [
-    #             {
-    #             "time": "2018-10-18T21:37:28-06:00",
-    #             "type": "CLICK",
-    #             "properties": {
-    #                 "locationX": 52,
-    #                 "locationY": 11
-    #             }
-    #             },
-    #             {
-    #             "time": "2018-10-18T21:37:30-06:00",
-    #             "type": "VIEW",
-    #             "properties": {
-    #                 "viewedId": "FDJKLHSLD"
-    #             }
-    #             },
-    #             {
-    #             "time": "2018-10-18T21:37:30-06:00",
-    #             "type": "NAVIGATE",
-    #             "properties": {
-    #                 "pageFrom": "communities",
-    #                 "pageTo": "inventory"
-    #             }
-    #             }
-    #         ]
-    #     },
-    #     { 
-    #         "userId": "asd", 
-    #         "sessionId": "asdfg", 
-    #         "actions" : [
-    #             {
-    #                 "time": "2018-10-18T21:37:28-06:00",
-    #                 "type": "CLICK",
-    #                 "properties": {
-    #                     "locationX": 60,
-    #                     "locationY": 70
-    #                 }
-    #             },
-    #             {
-    #                 "time": "2018-10-20T21:37:28-06:00",
-    #                 "type": "NAVIGATE",
-    #                 "properties": {
-    #                     "viewedId": "1234",
-    #                 }
-    #             }
-    #         ]
-    #     }]
-    #     try:
-    #         result = LogService.add_logs(body)
-    #         False
-    #     except Exception as e:
-    #         assert str(e) == "MISSING_PAGEFROM_VALUE"
-    #         log = Log.objects()
-    #         assert log is not None
-    #         assert len(log) == 0
+        body = [{
+            "userId": "ABC123XYZ",
+            "sessionId": "XYZ456ABC",
+            "actions": [
+                {
+                "time": "2018-10-18T21:37:28-06:00",
+                "type": "CLICK",
+                "properties": {
+                    "locationX": 52,
+                    "locationY": 11
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "VIEW",
+                "properties": {
+                    "viewedId": "FDJKLHSLD"
+                }
+                },
+                {
+                "time": "2018-10-18T21:37:30-06:00",
+                "type": "NAVIGATE",
+                "properties": {
+                    "pageFrom": "communities",
+                    "pageTo": "inventory"
+                }
+                }
+            ]
+        },
+        { 
+            "userId": "asd", 
+            "sessionId": "asdfg", 
+            "actions" : [
+                {
+                    "time": "2018-10-18T21:37:28-06:00",
+                    "type": "CLICK",
+                    "properties": {
+                        "locationX": 60,
+                        "locationY": 70
+                    }
+                },
+                {
+                    "time": "2018-10-20T21:37:28-06:00",
+                    "type": "NAVIGATE",
+                    "properties": {
+                        "viewedId": "1234",
+                    }
+                }
+            ]
+        }]
+        try:
+            result = LogService.add_logs(body)
+            False
+        except Exception as e:
+            assert str(e) == "MISSING_PAGEFROM_VALUE"
+            log = Log.objects()
+            assert log is not None
+            assert len(log) == 0

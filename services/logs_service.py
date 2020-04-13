@@ -52,12 +52,12 @@ class _LogService:
         # Run through all received logs. This for-loop does two things
         # - Validates all inputs
         # - Once all is validated, returns an array of actions well constructed by our helper below.
-        # - Insert into Log collections, upsert if doesn't exist
-
-        # I tried to seperate for-loop to insert into Log collection, that way before we insert we have already validated our body,
-        # but for some reason I got exceptions that I couldn't resolve in time. I implemented a test case for it, but for now it's
-        # commented out. So a batch addition won't be transactional with respect to this assessment. :(
+        #
+        # This way if any log in the body is invalid, then the entire body doesn't get inserted. Simulating a rollback.
+        #
         
+        logArray = []
+
         for log in logs:
             userId = log.get('userId')
             sessionId = log.get('sessionId')
@@ -67,8 +67,18 @@ class _LogService:
             if not sessionId: raise ValueError('MISSING_SESSIONID')
             if not actions: raise ValueError('MISSING_ACTIONS')
 
-            actionArray = map(self._createActionModel, actions)
-            Log.objects(userId=userId, sessionId=sessionId).update_one(push_all__actions=actionArray, upsert=True)
+            actionArray = []
+            
+            for action in actions:
+                actionArray.append(self._createActionModel(action))
+            logArray.append({ 'userId': userId, 'sessionId': sessionId, 'actionArray': actionArray})
+
+        # Validation and creation of array objects complete. Insert them all into Log collections
+        for _log in logArray:
+            Log.objects(
+                userId=_log.get('userId'), 
+                sessionId=_log.get('sessionId')
+            ).update_one(push_all__actions=_log.get('actionArray'), upsert=True)
         
         return { 'success': True }
 

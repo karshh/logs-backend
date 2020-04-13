@@ -157,7 +157,7 @@ This step had bootstrapped the heroku app for me at ```https://app-name.herokuap
 ### Limitations:
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
-- I wasn't able to have some transactional way of inserting logs into the DB. For now, this application does not guarantee that if any log has an error, that there will be a rollback. I implemented and commented out a test case for it. Also added in comments in code regarding this.
+- The validations of the body is done prior to inserting into the db, rather than a mongo-specific solution. The body doesn't get inserted if even one of the logs is invalid, and this validation check is done in code. 
 
 
 ### Answer to Follow-up question
