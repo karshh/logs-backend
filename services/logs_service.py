@@ -91,6 +91,7 @@ class _LogService:
         _properties = action.get('properties')
         _type = action.get('type')
         _time = action.get('time')
+        if not _time: raise ValueError("MISSING_TIME_VALUE")
         try:
             datetime.strptime(_time,'%Y-%m-%dT%H:%M:%S%z')
         except:

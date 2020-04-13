@@ -324,4 +324,226 @@ class TestLogController(TestCase):
     #
     ############################################
 
-    #TODO
+    def test_no_body(self):
+        r1 = self.w.post_json('/logs/', { }, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_USERID' }
+
+    def test_no_userId(self):
+        body = { 
+            'sessionId': '12345', 
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'CLICK',
+                    'properties': {
+                        'locationX': 52,
+                        'locationY': 22
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_USERID' }
+
+    def test_no_sessionId(self):
+        body = { 
+            'userId': '12345', 
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'CLICK',
+                    'properties': {
+                        'locationX': 52,
+                        'locationY': 22
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_SESSIONID' }
+
+    def test_no_actions(self):
+        body = { 
+            'userId': '12345',
+            'sessionId': '1234'
+            }
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_ACTIONS' }
+
+    def test_empty_actions(self):
+        body = { 
+            'userId': '12345',
+            'sessionId': '1234',
+            'actions': []
+            }
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_ACTIONS' }
+
+
+    def test_invalid_time(self):
+        body = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28',
+                    'type': 'CLICK',
+                    'properties': {
+                        'locationX': 52,
+                        'locationY': 22
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'INVALID_TIME_FORMAT' }
+
+    def test_invalid_type(self):
+        body = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'INVALID',
+                    'properties': {
+                        'locationX': 52,
+                        'locationY': 22
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'INVALID_ACTION_TYPE' }
+
+
+    def test_invalid_type(self):
+        body = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'INVALID',
+                    'properties': {
+                        'locationX': 52,
+                        'locationY': 22
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'INVALID_ACTION_TYPE' }
+
+    def test_invalid_navigate(self):
+        body1 = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'NAVIGATE',
+                    'properties': {
+                        'pageTo': '22'
+                    }
+                }
+            ]}
+        body2 = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'NAVIGATE',
+                    'properties': {
+                        'pageFrom': '22'
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body1, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_PAGEFROM_VALUE' }
+
+        r2 = self.w.post_json('/logs/', body2, expect_errors=True)
+        assert r2.status_int == 400
+        assert r2.json == {'success': False, 'code': 'MISSING_PAGETO_VALUE' }
+
+    def test_invalid_click(self):
+        body1 = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'CLICK',
+                    'properties': {
+                        'locationX': 22
+                    }
+                }
+            ]}
+        body2 = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'CLICK',
+                    'properties': {
+                        'locationY': 23
+                    }
+                }
+            ]}
+
+        r1 = self.w.post_json('/logs/', body1, expect_errors=True)
+        assert r1.status_int == 400
+        assert r1.json == {'success': False, 'code': 'MISSING_LOCATION_Y_VALUE' }
+
+        r2 = self.w.post_json('/logs/', body2, expect_errors=True)
+        assert r2.status_int == 400
+        assert r2.json == {'success': False, 'code': 'MISSING_LOCATION_X_VALUE' }
+    
+    def test_invalid_click(self):
+        body = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'time': '2018-10-18T21:37:28-06:00',
+                    'type': 'VIEW',
+                    'properties': {
+                        'asdf': 'asdf'
+                    }
+                }
+            ]}
+
+        r = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r.status_int == 400
+        assert r.json == {'success': False, 'code': 'MISSING_VIEWEDID_VALUE' }
+
+    def test_missing_time(self):
+        body = { 
+            'userId': '12345', 
+            'sessionId': '1234',
+            'actions' : [
+                {
+                    'type': 'VIEW',
+                    'properties': {
+                        'asdf': 'asdf'
+                    }
+                }
+            ]}
+
+        r = self.w.post_json('/logs/', body, expect_errors=True)
+        assert r.status_int == 400
+        assert r.json == {'success': False, 'code': 'MISSING_TIME_VALUE' }
