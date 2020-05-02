@@ -1,5 +1,6 @@
 # Logs Store
 
+This is a 48-hour attempt to impement an example of a Logs API in Flask.
 
 ### Installation
 
@@ -156,16 +157,7 @@ This is my first time using heroku for deployment. As such, I did the following 
     git push heroku master
     ```
 
-This step had bootstrapped the heroku app for me at ```https://app-name.herokuapp.com```
-
 ### Limitations:
 - I couldn't within the assessment timeframe get timestamp checking to work within mongo. So for now I store and retrieve time as string with fromat `%Y-%m-%dT%H:%M:%S-06:00`, and validate this format on every query or insertion before checking
 - I should be restricting `types` query parameter in `GET /logs/` to just CLICK, VIEW and NAVIGATE
 - The validations of the body is done prior to inserting into the db, rather than a mongo-specific solution. The body doesn't get inserted if even one of the logs is invalid, and this validation check is done in code. 
-
-### Answer to Follow-up question
-I would do the following to make this application more cloud-scalable:
-- Starting at the database level, R/W speeds must be as minimal as possible. My sandbox mlab cloud server would probably not be optimal for this, but purchasing a more premium services (or purchasing some beast servers and using them as storage) would be a good idea.
-- Resource-allocation: Ensuring that the application has the appropriate resources it needs to handle traffic. A load balancing service, which may dynamically allocate virtual matches to scale would be a good example here.
-- This application is written in Flask, and only serves 1 request at a time. (Although on researching gunicorn while deploying to heroku, I've read that it takes care of this issue), but a more asynchronous multithreaded solution/framework would probably help resolve more requests at a time.
-- A cache in the implementation can help speed up recently frequent requests if there hasn't been any writes to the database that may have changed the cached value. A tradeoff would be how much resource it eats up.
